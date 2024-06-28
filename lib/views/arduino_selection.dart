@@ -9,8 +9,7 @@ import 'package:usb_serial/usb_serial.dart';
 class ArduinoSelection extends StatefulWidget {
   final bool isBluetooth;
 
-  const ArduinoSelection({Key? key, required this.isBluetooth})
-      : super(key: key);
+  const ArduinoSelection({super.key, required this.isBluetooth});
 
   @override
   State<ArduinoSelection> createState() => _ArduinoSelectionState();
@@ -63,19 +62,19 @@ class _ArduinoSelectionState extends State<ArduinoSelection> {
           },
         ),
         floatingActionButton: widget.isBluetooth ? StreamBuilder<bool>(
-          stream: FlutterBluePlus.instance.isScanning,
+          stream: FlutterBluePlus.isScanning,
           initialData: false,
           builder: (c, snapshot) {
             if (snapshot.data!) {
               return FloatingActionButton(
-                onPressed: () => FlutterBluePlus.instance.stopScan(),
+                onPressed: () => FlutterBluePlus.stopScan(),
                 backgroundColor: Colors.red,
                 child: const Icon(Icons.stop),
               );
             } else {
               return FloatingActionButton(
                   child: const Icon(Icons.search),
-                  onPressed: () => FlutterBluePlus.instance
+                  onPressed: () => FlutterBluePlus
                       .startScan(timeout: const Duration(seconds: 4)));
             }
           },
@@ -95,8 +94,7 @@ class _ArduinoSelectionState extends State<ArduinoSelection> {
 class UsbDevices extends StatefulWidget {
   final Function(BuildContext) onConnect;
   final Function(BuildContext, Object) onError;
-  const UsbDevices({Key? key, required this.onConnect, required this.onError})
-      : super(key: key);
+  const UsbDevices({super.key, required this.onConnect, required this.onError});
 
   @override
   State<UsbDevices> createState() => _UsbDevicesState();
@@ -149,7 +147,7 @@ class _UsbDevicesState extends State<UsbDevices> {
 }
 
 class BluetoothDevices extends StatefulWidget {
-  const BluetoothDevices({Key? key}) : super(key: key);
+  const BluetoothDevices({super.key});
 
   @override
   State<BluetoothDevices> createState() => _BluetoothDevicesState();
@@ -200,8 +198,8 @@ class _BluetoothDevicesState extends State<BluetoothDevices> {
                 onTap: () {
                   _connectDevice(devices[index]);
                 },
-                title: Text(devices[index].name),
-                subtitle: Text(devices[index].id.id),
+                title: Text(devices[index].advName),
+                subtitle: Text(devices[index].remoteId.str),
               );
             },
           );

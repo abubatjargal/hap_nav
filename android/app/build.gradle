@@ -61,7 +61,7 @@ android {
 
     signingConfigs {
         release {
-            storeFile file('C:\\\\Users\\\\abuba\\\\keystores\\\\upload-keystore.jks')
+            storeFile file('../upload-keystore.jks')
             storePassword 'ariuka'
             keyAlias 'upload'
             keyPassword 'ariuka'
@@ -76,7 +76,6 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
-    namespace 'com.example.hap_nav'
 }
 
 flutter {

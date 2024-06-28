@@ -17,21 +17,15 @@ import android.net.wifi.aware.DiscoverySessionCallback
 import android.net.wifi.aware.PeerHandle
 import android.net.wifi.aware.PublishConfig
 import android.net.wifi.aware.PublishDiscoverySession
-import android.net.wifi.aware.ServiceDiscoveryInfo
 import android.net.wifi.aware.SubscribeConfig
 import android.net.wifi.aware.SubscribeDiscoverySession
 import android.net.wifi.aware.WifiAwareManager
 import android.net.wifi.aware.WifiAwareNetworkInfo
 import android.net.wifi.aware.WifiAwareNetworkSpecifier
 import android.net.wifi.aware.WifiAwareSession
-import android.os.Build
-import android.os.Handler
-import android.os.Looper
 import android.util.Log
-import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import io.flutter.plugin.common.MethodChannel
-import org.json.JSONObject
 import java.net.Inet6Address
 import java.net.ServerSocket
 
@@ -43,8 +37,6 @@ class WifiAwareService(
     val onMessageReceived: (String) -> Unit,
     val messageSendFailed: () -> Unit
 ) {
-    private var hasWifiAwareFeature: Boolean = false
-
     private var currentSession: WifiAwareSession? = null
 
     private var publishDiscoverySession: PublishDiscoverySession? = null
@@ -121,32 +113,9 @@ class WifiAwareService(
         }
     }
 
-    private val discoverySessionCallback = object : DiscoverySessionCallback() {
-
-
-        override fun onMessageReceived(peerHandle: PeerHandle?, message: ByteArray?) {
-            if (message != null) {
-                val msg = String(message)
-                Log.d(TAG,"MESSAGE RECEIVED: $msg")
-                if (msg == "COMPLETE_CONNECT" && subscribeDiscoverySession != null && peerHandle != null) {
-                    establishConnectionWithPeer(peerHandle, subscribeDiscoverySession!!, null)
-                } else if (msg == "INIT_CONNECT") {
-                    socket = java.net.ServerSocket((0..65535).random())
-                    socket!!.reuseAddress = true
-                    socket
-                    android.util.Log.d(android.content.ContentValues.TAG,"Establishing connection to peer")
-                    if (publishDiscoverySession != null && !isEstablishingConnection && socket != null && peerHandle != null) {
-                        establishConnectionWithPeer(peerHandle, publishDiscoverySession!!, socket?.localPort)
-                    }
-                } else if (peerNetwork != null) {
-                    onMessageReceived(msg)
-                }
-            }
-        }
-    }
 
     init {
-        wifiAwareManager = context.getSystemService(Context.WIFI_AWARE_SERVICE) as WifiAwareManager
+        wifiAwareManager = context.getSystemService(Context.WIFI_AWARE_SERVICE) as WifiAwareManager?
         connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
 
         val filter = IntentFilter(WifiAwareManager.ACTION_WIFI_AWARE_STATE_CHANGED)
@@ -307,17 +276,13 @@ class WifiAwareService(
 
             override fun onMessageReceived(peerHandle: PeerHandle, message: ByteArray) {
                 super.onMessageReceived(peerHandle, message)
-                val msg = String(message);
+                val msg = String(message)
                 Log.d(TAG, "Message received from subscriber: $msg")
 
                 if (msg == "INIT_CONNECT") {
                     socket = ServerSocket(0)
                     if (publishDiscoverySession == null) {
                         Log.e(TAG, "Publish discover session is null!")
-                        return
-                    }
-                    if (socket == null) {
-                        Log.e(TAG, "Publisher socket is null!")
                         return
                     }
                     if (isEstablishingConnection) {
@@ -406,7 +371,7 @@ class WifiAwareService(
             }
         } else {
             Log.e(TAG, "Peer Handle is null!")
-            result?.error("Error sending message", "Peer handle is null!", null);
+            result?.error("Error sending message", "Peer handle is null!", null)
             return
         }
     }

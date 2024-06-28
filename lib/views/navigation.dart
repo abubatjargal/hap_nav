@@ -685,7 +685,7 @@ class _NavigationState extends State<Navigation> {
     });
 
     // TODO:  REMOVE THIS~!!!
-    // _deviceManager.lastKnownPosition.value = ParticipantPosition(_originLocation!.latitude, _originLocation!.longitude);
+    _deviceManager.lastKnownPosition.value = ParticipantPosition(_originLocation!.latitude, _originLocation!.longitude);
   }
 
   @override

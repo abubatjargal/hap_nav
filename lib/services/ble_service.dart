@@ -11,11 +11,10 @@ import 'package:permission_handler/permission_handler.dart';
 class BleService {
   final String _arduinoWriteCharacteristic =
       "6e400002-b5a3-f393-e0a9-e50e24dcca9e";
-  final FlutterBluePlus flutterBlue = FlutterBluePlus.instance;
 
   ValueNotifier<List<BluetoothDevice>> scannedDevices = ValueNotifier([]);
   ValueNotifier<BluetoothDevice?> connectedDevice = ValueNotifier(null);
-  ValueNotifier<BluetoothDeviceState?> connectedDeviceState = ValueNotifier(null);
+  ValueNotifier<BluetoothConnectionState?> connectedDeviceState = ValueNotifier(null);
 
   BluetoothCharacteristic? bleWriteCharacteristic;
 
@@ -31,10 +30,9 @@ class BleService {
   void startBleScan() {
     print("Starting scan here");
     scannedDevices.value = [];
-    flutterBlue.startScan(
-        scanMode: ScanMode.lowLatency);
+    FlutterBluePlus.startScan();
 
-    flutterBlue.scanResults.listen((results) {
+    FlutterBluePlus.scanResults.listen((results) {
       for (ScanResult r in results) {
         if (r.device.name.isNotEmpty) {
           final index = scannedDevices.value
@@ -52,12 +50,12 @@ class BleService {
   }
 
   Future<void> stopBleScan() async {
-    await flutterBlue.stopScan();
+    await FlutterBluePlus.stopScan();
   }
 
   Future<Object?> connect(BluetoothDevice device) async {
     try {
-      await flutterBlue.stopScan();
+      await FlutterBluePlus.stopScan();
       await device.connect()
           .timeout(const Duration(seconds: 30));
 
@@ -76,16 +74,16 @@ class BleService {
   _startListeningToDeviceState(BluetoothDevice device) async {
     device.state.listen((event) {
       switch (event) {
-        case BluetoothDeviceState.connected:
+        case BluetoothConnectionState.connected:
           _deviceDidConnect(device);
           break;
-        case BluetoothDeviceState.disconnected:
+        case BluetoothConnectionState.disconnected:
           _deviceDidDisconnected();
           break;
-        case BluetoothDeviceState.connecting:
+        case BluetoothConnectionState.connecting:
           log("BLE Service is connecting to device.");
           break;
-        case BluetoothDeviceState.disconnecting:
+        case BluetoothConnectionState.disconnecting:
           log("BLE Service is disconnecting from device.");
           break;
       }

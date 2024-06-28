@@ -1,6 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.abu.hap_nav">
+    package="com.example.hap_nav">
 
     <uses-permission android:name="android.permission.NEARBY_WIFI_DEVICES" />
     <uses-permission
